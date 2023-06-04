@@ -1,13 +1,22 @@
 # Chatroom
- client-server communication
+### client-server communication
+### Socket: Websocket (choice: websocket-sharp)
+### Unity version: 2021.3.5f1 LTS
 
+> All messages between client and server are serialized using custom serializer with code generation.
 
 ## Client-side
-![chatroom main menu](https://github.com/nirupamkumar/Chatroom/assets/63305439/6bb52aa5-7a4b-421a-b0b5-225dd3550b6b)
 
-![Screenshot 2023-05-30 160142](https://github.com/nirupamkumar/Chatroom/assets/63305439/de5ac2ba-821b-485a-b956-8ab564098975)
+![charroom clinent ui](https://github.com/nirupamkumar/Chatroom/assets/63305439/61876fd5-769f-4edc-bce5-dd144a1aef91)
 
-![char room](https://github.com/nirupamkumar/Chatroom/assets/63305439/f5f1eba9-31bc-4546-a6a2-57956b2feafd)
+## Any user should be able to:
+### • Join/leave chat server
+### • List all available chatrooms
+### • Create a new chatroom
+### • Enter/leave a chatroom
+### • Send messages in a chatroom
+![chartoom clinet create join](https://github.com/nirupamkumar/Chatroom/assets/63305439/635995ee-ae31-46d3-8b68-93fe0c12890b)
+![charroom client text inputfield](https://github.com/nirupamkumar/Chatroom/assets/63305439/4d874fa9-4ef6-4f68-826b-e793d2a51b88)
 
 
 ## Server-side
