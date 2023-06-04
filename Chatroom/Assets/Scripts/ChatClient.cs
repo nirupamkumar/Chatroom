@@ -4,34 +4,41 @@ using UnityEngine;
 using TMPro;
 using WebSocketSharp;
 using System;
-using Unity.VisualScripting;
 
 public class ChatClient : MonoBehaviour
 {
-    public TMP_InputField identifierInput;
-    public TMP_InputField chatInputField;
-    public TMP_InputField chatRoomNameInput;
-    public TMP_Dropdown roomListDropdown;
-    public TMP_Text chatText;
+    private WebSocket webSocketClient;
 
-    private WebSocket webSocket;
+    [Header("Identifier")]
+    public TMP_InputField identifierInput;
+
+    [Header("Join/Create chatroom")]
+    public TMP_InputField createRoomNameInput;
+    public TMP_InputField joinRoomNameInput;
+    public TMP_Dropdown roomListDropdown;
+
+    [Header("Chartoom")]
+    public TMP_InputField chatInputField;
 
     private void Start()
     {
+        webSocketClient = new WebSocket("ws://localhost:15001/chat");
+        webSocketClient.OnMessage += OnMessageReceived;
+        webSocketClient.Connect();
 
-        webSocket = new WebSocket("ws://127.0.0.1:8080/chat");
-        webSocket.OnMessage += OnMessageReceived;
-        webSocket.Connect();
-
-        webSocket.Send(chatInputField.text);
+        webSocketClient.Send(chatInputField.text);
     }
 
-    
+    private void Update()
+    {
+        QuitApplication();
+    }
+
 
     private void OnMessageReceived(object sender, MessageEventArgs e)
     {
         Console.WriteLine("Connection opened");
-        chatText.text = e.Data;
+        chatInputField.text = e.Data;
     }
 
     public void SendMessage()
@@ -39,31 +46,31 @@ public class ChatClient : MonoBehaviour
         string playerIdentifier = identifierInput.text;
 
         string message = "[" + playerIdentifier + "]" + ":" + chatInputField.text;
-        webSocket.Send(message);
+        webSocketClient.Send(message);
         chatInputField.text = string.Empty;
     }
 
     public void CreateChatRoom()
     {
-        string chatRoomName = chatRoomNameInput.text;
-        webSocket.Send($"CreateCharRoom: { chatRoomName}");
+        string chatRoomName = joinRoomNameInput.text;
+        webSocketClient.Send($"CreateCharRoom: { chatRoomName}");
         chatInputField.text = string.Empty;
     }
 
     public void JoinChatRoom()
     {
-
+        //join chat room code here
     }
 
     public void Leavechat()
     {
-        webSocket.Close();
+        webSocketClient.Close();
+        //Websocket.Sent(identifierInput + "left the chat");
     }
 
     public void GetRoomList(List<string> chatRooms)
     {
         roomListDropdown.ClearOptions();
-
         List<TMP_Dropdown.OptionData> optionDatas = new List<TMP_Dropdown.OptionData>();
 
         foreach (string room in chatRooms)
@@ -75,8 +82,11 @@ public class ChatClient : MonoBehaviour
         roomListDropdown.AddOptions(optionDatas);
     }
 
-    public void QuitButton()
+    public void QuitApplication()
     {
-        Application.Quit();
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 }
