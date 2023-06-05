@@ -9,7 +9,8 @@ public class Server : MonoBehaviour
 {
     private WebSocketServer _server;
 
-    public TMP_InputField inputField;
+    public TMP_Text displayMessages;
+    private string serverName = "[Server]: ";
 
     private void Start()
     {
@@ -18,7 +19,9 @@ public class Server : MonoBehaviour
             _server = new WebSocketServer(15001);
             _server.AddWebSocketService<ChatServerBehaviour>("/chat");
             _server.Start();
-            inputField.text = "Server started";
+
+            displayMessages.text = string.Empty;      
+            displayMessages.text = string.Join("\n", serverName + "Server Started" + "\n");
         }
         catch (Exception ex)
         {
@@ -46,6 +49,9 @@ public class Server : MonoBehaviour
             _server.Stop();
             _server = null;
             Debug.Log("Server stopped");
+
+            string leaveMessage = "Server stopped";
+            displayMessages.text = serverName + leaveMessage;
         }
     }
 
