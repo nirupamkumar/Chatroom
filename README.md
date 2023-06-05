@@ -20,4 +20,5 @@
 
 
 ## Server-side
-![Screenshot 2023-05-30 155000](https://github.com/nirupamkumar/Chatroom/assets/63305439/9a90dc80-b067-4cf5-af1a-b8006067550e)
+
+![server](https://github.com/nirupamkumar/Chatroom/assets/63305439/be8b318c-30b8-427a-8ad3-bc5da6eec064)
