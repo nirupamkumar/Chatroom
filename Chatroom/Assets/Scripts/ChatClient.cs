@@ -52,6 +52,7 @@ public class ChatClient : MonoBehaviour
         if (!string.IsNullOrEmpty(inputText) && Input.GetKeyDown(KeyCode.Return))
         {
             SendMessage();
+            chatInputField.text = string.Empty;
         }
     }
 
@@ -75,6 +76,7 @@ public class ChatClient : MonoBehaviour
         webSocketClient.Close();
 
         string leaveMessage = identifierInput.text + " left the chat";
+        //displayChatText.text += leaveMessage + "\n";
         webSocketClient.Send(leaveMessage);
     }
 
