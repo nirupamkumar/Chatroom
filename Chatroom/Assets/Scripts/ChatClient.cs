@@ -46,9 +46,9 @@ public class ChatClient : MonoBehaviour
         }
         else
         {
-            chatInputField.text = "Connection opened";
-            //chatInputField.text = e.Data;
-            string receivedMessages = e.Data;
+            //chatInputField.text = "Connection opened";
+            string receivedMessages = e.Data;           
+
             displayChatText.text += receivedMessages + "\n";
         }       
     }
@@ -58,18 +58,12 @@ public class ChatClient : MonoBehaviour
         if (!string.IsNullOrEmpty(inputText) && Input.GetKeyDown(KeyCode.Return))
         {
             SendMessage();
-            //chatInputField.text = string.Empty;
+            chatInputField.text = string.Empty;
         }
     }
 
     public void SendMessage()
     {
-        if (chatInputField.text == "Connection opened")
-        {
-            chatInputField.text = string.Empty;
-            return;
-        }
-
         string playerIdentifier = identifierInput.text;
         string message = "[" + playerIdentifier + "]: " + chatInputField.text;
         displayChatText.text += message + "\n";
@@ -110,9 +104,6 @@ public class ChatClient : MonoBehaviour
 
     private void UpdateDropdownList()
     {
-        // Clear the existing dropdown options
-        //roomListDropdown.ClearOptions();
-
         // Add the updated chat room names to the dropdown options
         roomListDropdown.AddOptions(chatRoomNames);
 
