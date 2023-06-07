@@ -29,22 +29,18 @@ public class ChatClient : MonoBehaviour
         webSocketClient.Connect();
 
         chatInputField.onEndEdit.AddListener(OnEndEdit);
-    }
 
-    private void Update()
-    {
-        QuitApplication();
+        roomListDropdown.ClearOptions();
+        
     }
 
     private void OnMessageReceived(object sender, MessageEventArgs e)
     {
-        chatInputField.text = "Connection opened";
+        //chatInputField.text = "Connection opened";
+        //chatInputField.text = e.Data;
 
-        // update chat input field with the received messages
-        chatInputField.text = e.Data;
-
-        // add the received messages to the displayChatText
-        displayChatText.text += e.Data + "\n";
+        string receivedMessages = e.Data;
+        displayChatText.text += receivedMessages + "\n";
     }
 
     private void OnEndEdit(string inputText)
@@ -73,37 +69,57 @@ public class ChatClient : MonoBehaviour
    
     public void Leavechat()
     {
-        webSocketClient.Close();
+        if (webSocketClient != null)
+        {
+            string leaveMessage = identifierInput.text + " left the chat";
+            displayChatText.text += leaveMessage + "\n";
+            webSocketClient.Send(leaveMessage);
+            webSocketClient.Send("Server: " + leaveMessage);
+            identifierInput.text = string.Empty;
 
-        string leaveMessage = identifierInput.text + " left the chat";
-        //displayChatText.text += leaveMessage + "\n";
-        webSocketClient.Send(leaveMessage);
+            webSocketClient.Close();
+            webSocketClient = null;
+        }
     }
 
     public void CreateChatRoom()
     {
-        string chatRoomName = joinRoomNameInput.text;
-        webSocketClient.Send($"CreateCharRoom: {chatRoomName}");
-        chatInputField.text = string.Empty;
+        string chatRoomName = createRoomNameInput.text;
+
+        if (!string.IsNullOrEmpty(chatRoomName))
+        {
+            webSocketClient.Send($"CreateChatRoom: {chatRoomName}");
+            //roomListDropdown.options.Add(new TMP_Dropdown.OptionData(chatRoomName));
+            //roomListDropdown.RefreshShownValue();
+
+            createRoomNameInput.text = string.Empty;
+        }  
     }
 
-    public void GetRoomList(List<string> chatRooms)
+    private void UpdateChatRoomDropdown(string[] chatRoomNames)
     {
         roomListDropdown.ClearOptions();
-        List<TMP_Dropdown.OptionData> optionDatas = new List<TMP_Dropdown.OptionData>();
 
-        foreach (string room in chatRooms)
+        List<TMP_Dropdown.OptionData> dropdownOptions = new List<TMP_Dropdown.OptionData>();
+        foreach (string roomName in chatRoomNames)
         {
-            TMP_Dropdown.OptionData option = new TMP_Dropdown.OptionData(room);
-            optionDatas.Add(option);
+            dropdownOptions.Add(new TMP_Dropdown.OptionData(roomName));
         }
 
-        roomListDropdown.AddOptions(optionDatas);
+        roomListDropdown.AddOptions(dropdownOptions);
     }
 
-    public void JoinChatRoom()
+    private void JoinChatRoom(string chatRoomName)
     {
-        //join chat room code here
+        // Send a message to the server indicating that the client wants to join the chat room
+        webSocketClient.Send($"JoinChatRoom: {chatRoomName}");
+    }
+
+
+
+    private void Update()
+    {
+        QuitApplication();
     }
 
     public void QuitApplication()
