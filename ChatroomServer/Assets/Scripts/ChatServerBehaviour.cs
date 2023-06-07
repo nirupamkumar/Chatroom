@@ -11,6 +11,8 @@ public class ChatServerBehaviour : WebSocketBehavior
     private static List<ChatServerBehaviour> _clients = new List<ChatServerBehaviour>();
     private static List<string> chatRooms = new List<string>();
 
+    public string ChatRoomName { get; private set; }
+
     //private TMP_Text _displayMessages;
     //private List<string> _chatMessagesHistory = new List<string>(); 
 
@@ -18,23 +20,26 @@ public class ChatServerBehaviour : WebSocketBehavior
     {
         //Sessions.Broadcast(e.Data);
         string message = e.Data;
-        BroadcastMessages(message);
+        BroadcastMessages(message, this);
 
         if (e.Data.StartsWith("CreateChatRoom: "))
         {
             string chatRoomName = e.Data.Substring("CreateChatRoom: ".Length);
             chatRooms.Add(chatRoomName);
 
-            // Broadcast the updated list of chat room names to all clients
             BroadcastChatRoomList();
         }
-
     }
 
     protected override void OnOpen()
     {
-        _clients.Add(this);
-        Debug.Log($"Client connected. Total clients: {_clients.Count}");
+        if (!_clients.Contains(this))
+        {
+            _clients.Add(this);
+            Debug.Log($"Client connected. Total clients: {_clients.Count}");
+
+            ChatRoomName = "";
+        }
     }
 
     protected override void OnClose(CloseEventArgs e)
@@ -43,9 +48,24 @@ public class ChatServerBehaviour : WebSocketBehavior
         Debug.Log($"Client disconnected. Total clients: {_clients.Count}");
     }
 
-    private void BroadcastMessages(string message)
+    private void BroadcastMessages(string message, ChatServerBehaviour sender)
     {
         Sessions.Broadcast(message);
+
+        foreach (var client in _clients)
+        {
+            if (client != sender && client.ChatRoomName == sender?.ChatRoomName)
+            {
+                try
+                {
+                    client.Send(message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error sending message to client: {ex.Message}");
+                }
+            }
+        }
 
         /*
         _chatMessagesHistory.Add(message);
@@ -72,5 +92,15 @@ public class ChatServerBehaviour : WebSocketBehavior
         string chatRoomListMessage = "ChatRoomList: " + string.Join(",", chatRooms.ToArray());
         Sessions.Broadcast(chatRoomListMessage);
     }
+
+    private void JoinChatRoom(string chatRoomName, ChatServerBehaviour client)
+    {
+        // Set the chat room name for the client
+        client.ChatRoomName = chatRoomName;
+
+        // Notify the client that they have joined the chat room
+        client.Send($"JoinChatRoom: {chatRoomName}");
+    }
+
 
 }
