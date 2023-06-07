@@ -23,4 +23,4 @@
 
 ## Server-side
 
-![server](https://github.com/nirupamkumar/Chatroom/assets/63305439/be8b318c-30b8-427a-8ad3-bc5da6eec064)
+![Server](https://github.com/nirupamkumar/Chatroom/assets/63305439/07a68da2-ccbf-4543-8b61-fd4080fd5343)
