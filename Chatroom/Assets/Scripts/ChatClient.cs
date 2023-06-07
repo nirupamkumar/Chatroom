@@ -5,6 +5,7 @@ using TMPro;
 using WebSocketSharp;
 using System;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class ChatClient : MonoBehaviour
 {
@@ -15,8 +16,8 @@ public class ChatClient : MonoBehaviour
 
     [Header("Join/Create chatroom")]
     public TMP_InputField createRoomNameInput;
-    public TMP_InputField joinRoomNameInput;
     public TMP_Dropdown roomListDropdown;
+    private List<string> chatRoomNames = new List<string>();
 
     [Header("Chartoom")]
     public TMP_InputField chatInputField;
@@ -30,17 +31,26 @@ public class ChatClient : MonoBehaviour
 
         chatInputField.onEndEdit.AddListener(OnEndEdit);
 
-        roomListDropdown.ClearOptions();
-        
+        roomListDropdown.ClearOptions();   
     }
 
     private void OnMessageReceived(object sender, MessageEventArgs e)
-    {
-        //chatInputField.text = "Connection opened";
-        //chatInputField.text = e.Data;
+    {    
+        if (e.Data.StartsWith("JoinChatRoom: "))
+        {
+            string chatRoomList = e.Data.Substring("JoinChatRoom: ".Length);
+            chatRoomNames = chatRoomList.Split(',').ToList();
+            Debug.Log("Joined chat room: " + chatRoomNames);
 
-        string receivedMessages = e.Data;
-        displayChatText.text += receivedMessages + "\n";
+            UpdateDropdownList();
+        }
+        else
+        {
+            chatInputField.text = "Connection opened";
+            //chatInputField.text = e.Data;
+            string receivedMessages = e.Data;
+            displayChatText.text += receivedMessages + "\n";
+        }       
     }
 
     private void OnEndEdit(string inputText)
@@ -48,23 +58,23 @@ public class ChatClient : MonoBehaviour
         if (!string.IsNullOrEmpty(inputText) && Input.GetKeyDown(KeyCode.Return))
         {
             SendMessage();
-            chatInputField.text = string.Empty;
+            //chatInputField.text = string.Empty;
         }
     }
 
     public void SendMessage()
     {
+        if (chatInputField.text == "Connection opened")
+        {
+            chatInputField.text = string.Empty;
+            return;
+        }
+
         string playerIdentifier = identifierInput.text;
         string message = "[" + playerIdentifier + "]: " + chatInputField.text;
-
-        // send the message through websockets
-        webSocketClient.Send(message);
-
-        // clear the chat input field
-        chatInputField.text = string.Empty;
-
-        // Add the sent message to the Textmeshpro Text display
         displayChatText.text += message + "\n";
+    
+        webSocketClient.Send(message);
     }
    
     public void Leavechat()
@@ -75,6 +85,7 @@ public class ChatClient : MonoBehaviour
             displayChatText.text += leaveMessage + "\n";
             webSocketClient.Send(leaveMessage);
             webSocketClient.Send("Server: " + leaveMessage);
+
             identifierInput.text = string.Empty;
 
             webSocketClient.Close();
@@ -89,12 +100,32 @@ public class ChatClient : MonoBehaviour
         if (!string.IsNullOrEmpty(chatRoomName))
         {
             webSocketClient.Send($"CreateChatRoom: {chatRoomName}");
-            //roomListDropdown.options.Add(new TMP_Dropdown.OptionData(chatRoomName));
-            //roomListDropdown.RefreshShownValue();
+            roomListDropdown.options.Add(new TMP_Dropdown.OptionData(chatRoomName));
+            roomListDropdown.RefreshShownValue();
 
+            JoinChatRoom(chatRoomName);
             createRoomNameInput.text = string.Empty;
         }  
     }
+
+    private void UpdateDropdownList()
+    {
+        // Clear the existing dropdown options
+        //roomListDropdown.ClearOptions();
+
+        // Add the updated chat room names to the dropdown options
+        roomListDropdown.AddOptions(chatRoomNames);
+
+        // Update the displayed value
+        roomListDropdown.RefreshShownValue();
+    }
+
+    private void JoinChatRoom(string chatRoomName)
+    {
+        // Send a message to the server indicating that the client wants to join the chat room
+        webSocketClient.Send($"JoinChatRoom: {chatRoomName}");
+    }
+
 
     private void UpdateChatRoomDropdown(string[] chatRoomNames)
     {
@@ -109,12 +140,16 @@ public class ChatClient : MonoBehaviour
         roomListDropdown.AddOptions(dropdownOptions);
     }
 
-    private void JoinChatRoom(string chatRoomName)
+    public void ContinueButton()
     {
-        // Send a message to the server indicating that the client wants to join the chat room
-        webSocketClient.Send($"JoinChatRoom: {chatRoomName}");
-    }
+        if (string.IsNullOrEmpty(identifierInput.text))
+        {
+            identifierInput.text = "player";
+        }
 
+        Debug.Log(identifierInput.text);
+
+    }
 
 
     private void Update()
