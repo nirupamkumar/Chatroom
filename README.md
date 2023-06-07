@@ -15,8 +15,10 @@
 ### • Create a new chatroom
 ### • Enter/leave a chatroom
 ### • Send messages in a chatroom
-![chartoom clinet create join](https://github.com/nirupamkumar/Chatroom/assets/63305439/635995ee-ae31-46d3-8b68-93fe0c12890b)
-![charroom client text inputfield](https://github.com/nirupamkumar/Chatroom/assets/63305439/4d874fa9-4ef6-4f68-826b-e793d2a51b88)
+
+![Create Join](https://github.com/nirupamkumar/Chatroom/assets/63305439/815527f9-b505-4692-b645-4fcc02a9eabe)
+
+![chatroom](https://github.com/nirupamkumar/Chatroom/assets/63305439/b461b4e7-007c-4305-9b4f-3bdc265ea902)
 
 
 ## Server-side
